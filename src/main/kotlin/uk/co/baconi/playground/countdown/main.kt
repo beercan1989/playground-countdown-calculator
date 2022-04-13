@@ -50,27 +50,24 @@ fun main() = runBlocking {
     }
 
     // Attempt to solve the problem
-    val solution = Channel<String>(1)
+    val solutionAttempt = Channel<Solution?>(1)
     val solve = launch {
-        var count = 0
-        while (isActive) {
-            // TODO - Attempt to solve the problem.
-            if(count++ >= 30) {
-                solution.send("Solution")
-                solution.close()
-                break
-            }
-        }
+        calculateSolution(picked, target, solutionAttempt)
     }
 
     // Wait for the countdown to finish
     clock.join()
+    logger.info("So what did you get?")
 
     // Stop trying to find a solution
     solve.cancelAndJoin()
 
-    logger.info("So what did you get?")
-    logger.info("Well I got '${solution.receive()}'")
+    val solution = solutionAttempt.receive()
+    if(solution == null) {
+        logger.info("I didn't get anything...")
+    } else {
+        logger.info("I got ${solution.result}")
+    }
 }
 
 fun List<Int>.pickRandom(times: Int): List<Int> = 1.rangeTo(times).map { random() }
