@@ -14,8 +14,8 @@ fun main() = runBlocking {
     val continuedLogger = LoggerFactory.getLogger("Continued")
 
     val special = false
-    val smalls = (1..10).toList().let { s -> s + s }
-    val larges = if(special) { listOf(12, 37, 62, 87) } else { listOf(25, 50, 75, 100) }
+    val smalls: MutableList<Int> = (1..10).let { s -> (s + s) }.toMutableList()
+    val larges = if(special) { mutableListOf(12, 37, 62, 87) } else { mutableListOf(25, 50, 75, 100) }
 
     // How many big numbers do you want?
     val numberOfBig = Random.nextInt(1..4)
@@ -28,7 +28,13 @@ fun main() = runBlocking {
     // TODO - Support specific numbers - aka play along mode
 
     // Cards are picked and laid out, smalls first then the large, but right to left.
-    val picked: List<Int> = larges.pickRandom(numberOfBig) + smalls.pickRandom(numberOfSmall)
+    val picked = mutableListOf<Int>()
+    for (i in 1..numberOfBig) {
+        picked.add(larges.removeAt(Random.nextInt(larges.size)))
+    }
+    for (i in 1..numberOfSmall) {
+        picked.add(smalls.removeAt(Random.nextInt(smalls.size)))
+    }
 
     logger.info("And your numbers are...")
     logger.info(picked.joinToString("  "))
@@ -66,8 +72,6 @@ fun main() = runBlocking {
     if(solution == null) {
         logger.info("I didn't get anything...")
     } else {
-        logger.info("I got ${solution.result}")
+        logger.info("I got ${solution.method.result} by doing ${solution.method}")
     }
 }
-
-fun List<Int>.pickRandom(times: Int): List<Int> = 1.rangeTo(times).map { random() }
