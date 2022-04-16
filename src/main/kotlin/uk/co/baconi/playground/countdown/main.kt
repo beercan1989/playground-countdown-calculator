@@ -44,21 +44,25 @@ fun main() = runBlocking {
 
     logger.info("With a target of $target")
 
+    val isPlayerAnAss = true
+
     // Start the clock
     val clock = launch {
-        clockLogger.info("START")
+        if(isPlayerAnAss) logger.info("Clock START")
+        else clockLogger.info("START")
         var ticks = 0
         while (ticks++ < 30) {
             delay(1.seconds)
-            continuedLogger.info(".")
+            if(!isPlayerAnAss) continuedLogger.info(".")
         }
-        continuedLogger.info("END\n")
+        if(isPlayerAnAss) logger.info("Clock END")
+        else continuedLogger.info("END\n")
     }
 
     // Attempt to solve the problem
     val solutionAttempt = Channel<Solution?>(1)
     val solve = launch {
-        calculateSolution(picked, target, solutionAttempt)
+        calculateSolution(picked, target, solutionAttempt, isPlayerAnAss)
     }
 
     // Wait for the countdown to finish
@@ -72,6 +76,10 @@ fun main() = runBlocking {
     if(solution == null) {
         logger.info("I didn't get anything...")
     } else {
-        logger.info("I got ${solution.method.result} by doing ${solution.method}")
+        if(solution.distance == 0) {
+            logger.info("I got ${solution.method.result} by doing ${solution.method}")
+        } else {
+            logger.info("I got ${solution.distance} away, with ${solution.method.result}; by doing ${solution.method}")
+        }
     }
 }
